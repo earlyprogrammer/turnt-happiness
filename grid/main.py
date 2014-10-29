@@ -13,6 +13,7 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import matplotlib.cm as cm
 
 import threading
 
@@ -34,7 +35,7 @@ class Team(object):
 
 
 	fig = plt.figure()
-        img = plt.imshow(world.world, aspect=None, interpolation="none")
+        img = plt.imshow(world.world, aspect=None, cmap=cm.YlGnBu, interpolation="none")
 
         def animate(i):
             mytanks = r.Mytanks()
@@ -53,7 +54,7 @@ class Team(object):
                 self.steer(mytanks, num, goal)
                 #r.Shoot(num)   
 
-            return plt.imshow(world.world, aspect=None, interpolation="none")
+            return plt.imshow(world.world, aspect=None, cmap=cm.YlGnBu, interpolation="none")
 
         ani = animation.FuncAnimation(fig, animate, interval = 20, save_count=0)
         plt.show()
@@ -94,11 +95,6 @@ class Team(object):
     '''
             
 
-
-
-    def grid(self, world):
-        thread = VisualThread(world)
-        thread.start()
 
 
 
@@ -177,7 +173,7 @@ class Team(object):
     
     def generate_field_function(self, scale, goal):#, obstacles):
         def function(x, y):
-            print x, y
+            #print x, y
             vGoalDif = (goal[0]-x,goal[1]-y)
             vGoalAng = math.atan2(vGoalDif[1], vGoalDif[0])
             vGoalDis = (vGoalDif[0]**2 + vGoalDif[1]**2) ** .5
@@ -241,8 +237,8 @@ class Team(object):
    
     def angveladj(self, angle, angvel, desired_angle):
         angle = angle + angvel / self.ANGULARACCEL
-	print desired_angle, angle
-        print angvel
+	#print desired_angle, angle
+        #print angvel
         a = math.atan2(math.sin(desired_angle - angle), math.cos(desired_angle - angle))
         if a > 0:
             return 1
