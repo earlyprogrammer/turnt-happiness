@@ -30,7 +30,34 @@ class Team(object):
 
         world = GridWorld(self.CONSTANTS)
         mytanks = r.Mytanks()
-        self.grid(mytanks, world)
+
+
+
+	fig = plt.figure()
+        img = plt.imshow(world.world, aspect=None, interpolation="none")
+
+        def animate(i):
+            mytanks = r.Mytanks()
+            for num in range(len(mytanks.list)):
+                occgrid = r.Occgrid(num)
+                world.update(occgrid.corner(), occgrid.grid())
+
+                #num = 0
+                r.Speed(num, 1)
+                #pdb.set_trace()
+                if mytanks.flag(num) == True:
+                    goal = self.bases.center(self.CONSTANTS["team"])
+                else:
+                    goal = r.Flags().index(3)
+
+                self.steer(mytanks, num, goal)
+                #r.Shoot(num)   
+
+            return plt.imshow(world.world, aspect=None, interpolation="none")
+
+        ani = animation.FuncAnimation(fig, animate, interval = 20, save_count=0)
+        plt.show()
+
 
 
 	#print self.CONSTANTS
@@ -45,10 +72,15 @@ class Team(object):
 #         print r.Obstacles().get_Obstacles()
 #         pdb.set_trace()   
         
+    '''
         while True:
-            mytanks = r.Mytanks()
+            mytanks = r.Mytanks() 
+
             
             for num in range(len(mytanks.list)):
+                occgrid = r.Occgrid(num)
+                world.update(occgrid.corner(), occgrid.grid())
+
 #                 num = 0
                 r.Speed(num, 1)
 #                 pdb.set_trace()
@@ -59,16 +91,13 @@ class Team(object):
 
                 self.steer(mytanks, num, goal)
                 r.Shoot(num)   
- 
+    '''
             
 
-        mytanks = r.Mytanks()
-        self.grid(mytanks, world)
 
 
-
-    def grid(self, mytanks, world):
-        thread = VisualThread(mytanks,world,r)
+    def grid(self, world):
+        thread = VisualThread(world)
         thread.start()
 
 
@@ -148,6 +177,7 @@ class Team(object):
     
     def generate_field_function(self, scale, goal):#, obstacles):
         def function(x, y):
+            print x, y
             vGoalDif = (goal[0]-x,goal[1]-y)
             vGoalAng = math.atan2(vGoalDif[1], vGoalDif[0])
             vGoalDis = (vGoalDif[0]**2 + vGoalDif[1]**2) ** .5
@@ -211,38 +241,15 @@ class Team(object):
    
     def angveladj(self, angle, angvel, desired_angle):
         angle = angle + angvel / self.ANGULARACCEL
+	print desired_angle, angle
         print angvel
         a = math.atan2(math.sin(desired_angle - angle), math.cos(desired_angle - angle))
-        if a > self.ANGULARACCEL:
+        if a > 0:
             return 1
-        if a < self.ANGULARACCEL:
+        if a < 0:
             return -1
-        return a / self.ANGULARACCEL
+        return 0
     
-          
-
-
-class VisualThread(threading.Thread):
-    def __init__(self, mytanks, world, r):
-        self.mytanks = mytanks
-        self.world = world
-        self.r = r
-        threading.Thread.__init__(self)
-
-    def run(self):
-        fig = plt.figure()
-        img = plt.imshow(self.world.world, aspect=None, interpolation="none")
-
-        def animate(i):
-            for num in range(len(self.mytanks.list)):
-                occgrid = self.r.Occgrid(num)
-                self.world.update(occgrid.corner(), occgrid.grid())
-            return plt.imshow(self.world.world, aspect=None, interpolation="none")
-
-        
-        ani = animation.FuncAnimation(fig, animate, interval = 20, save_count=0)
-        plt.show()
-
 
 
 
